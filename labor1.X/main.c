@@ -9,7 +9,7 @@
 #include <sys/attribs.h>
 
 #define S1Pressed() ((PORTB & 1 << 9) == 0)
-#define LedToggle(n) PORTAINV = (1 << ((n)+8))
+#define LedToggle(n) LATAINV = (1 << ((n)+9))
 
 #define CURRENT_TASK 0
 
@@ -19,11 +19,12 @@ void setup(void) {
     SYSTEM_Initialize();    // set 24 MHz clock for CPU and Peripheral Bus
                             // clock period = 41,667 ns = 0,0417 us
     TRISBSET = (1 << 9);    // RB9: S1 (input)
-    TRISACLR = (0x1F << 9); // RA9-13: LED1-5 (output)
-    
+    TRISACLR = (0x1F << 10); // RA9-13: LED1-5 (output)
+    TRISD &= 0b0111 ;     // set bit 3 of Port D for output
+    TRISBbits.TRISB9 = 1;
 #if CURRENT_TASK == 3
     T1CONbits.TCKPS = 3;    // Timer 1 Prescaler 256
-    PR1 = 18750;            // 24,000,000 Hz / 5 Hz / 256 = 18750
+    PR1 = 18750;            // 24,000,000 Hz / 1 kHz / 256 = 18750
     IPC4bits.T1IP = 3;      // Timer 1 Priority = 3
     IPC4bits.T1IS = 1;      // Timer 1 subpriority = 1
     IFS0bits.T1IF = 0;      // Clear interrupt bit
@@ -32,6 +33,16 @@ void setup(void) {
     
 #endif
     
+}
+
+void Task1(void)
+{
+    int i;
+    LATDSET = 0b1000;       // set bit 3 of Port D
+	for (i=0; i< 1000000; i++);
+        
+    LATDCLR = 0b1000;       // clear bit 3 of Port D
+    for (i=0; i< 1000000; i++); 
 }
 
 void Task2(void)
@@ -48,7 +59,12 @@ void Task2(void)
     }
 }
 
-void __ISR(_TIMER_1_VECTOR, ipl3) Timer1Handler(void)
+void Task3(void)
+{
+    
+}
+
+void __ISR(_TIMER_1_VECTOR, IPL3SOFT) Timer1Handler(void)
 {
     LedToggle(1);
     IFS0bits.T1IF = 0; // clear interrupt bit
@@ -56,7 +72,17 @@ void __ISR(_TIMER_1_VECTOR, ipl3) Timer1Handler(void)
 
 void loop(void) {
     while(1) {
-        
+#if CURRENT_TASK == 1
+        Task1();
+#elif CURRENT_TASK == 2
+        Task2();
+#elif CURRENT_TASK == 3
+        Task3();
+#elif CURRENT_TASK == 4
+        Task4();
+#elif CURRENT_TASK == 5
+        Task5();
+#endif
   }
 }
 

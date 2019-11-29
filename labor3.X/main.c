@@ -1,9 +1,3 @@
-/*
- First PIC32MM program
- 
- This simple example program lets LED1 blink
- */
-
 #include <stdint.h>
 #include <xc.h>
 #include <sys/attribs.h>
@@ -11,6 +5,7 @@
 #include "notes.h"
 
 #define CURRENT_TASK 3
+#define CURRENT_MELODY melody
 
 Note melody[] = {
     {NOTE_C6, 4},
@@ -198,7 +193,7 @@ void __ISR(_TIMER_2_VECTOR, IPL3AUTO) Timer2Handler(void)
         note = melody2[noteIndex];
     }
     setFreqValue(note.freq);
-    if (currentDuration != (16 / note.duration))
+    if (currentDuration != (8 / note.duration))
     {
         currentDuration++;
     }
@@ -207,7 +202,7 @@ void __ISR(_TIMER_2_VECTOR, IPL3AUTO) Timer2Handler(void)
         currentDuration = 0;
         noteIndex++;
     }
-    if (noteIndex == (sizeof(melody2)/sizeof(melody2[0])))
+    if (noteIndex == (sizeof(CURRENT_MELODY)/sizeof(CURRENT_MELODY[0])))
     {
         noteIndex = -2;
     }

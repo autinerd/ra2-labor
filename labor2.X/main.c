@@ -41,17 +41,17 @@ void __ISR(_ADC_VECTOR, IPL2AUTO) ADCHandler(void)
     asm volatile (
     ".set at \n\t"
     "lw %0, ADC1BUF0 \n\t"
-    "addi $t4, $zero, 3300 \n\t"
-    "addi $t5, $zero, 1023 \n\t"
-    "multu %0, $t4 \n\t"
+    "addi $t0, $zero, 3300 \n\t"
+    "addi $t1, $zero, 102 \n\t"
+    "multu %0, $t0 \n\t"
     "mflo %0 \n\t"
-    "divu %0, $t5 \n\t"
+    "divu %0, $t1 \n\t"
     "mflo %0 \n\t"
-    "addi %0, %0, -500 \n\t"
-    "lw $t4, IFS1 \n\t"
-    "ori $t4, $t4, 2 \n\t"
-    "sw $t4, IFS1 \n\t"
-    ".set noat" : "=r" (tempValue): :  "t4", "t5"
+    "addiu %0, %0, -50 \n\t"
+    "lw $t0, IFS1 \n\t"
+    "ori $t0, $t0, 2 \n\t"
+    "sw $t0, IFS1 \n\t"
+    ".set noat" : "=r" (tempValue): :  "t0", "t1"
     );
 //    IFS1bits.AD1IF = 0;
 }
